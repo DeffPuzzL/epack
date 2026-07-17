@@ -1,0 +1,7 @@
+# Credits
+
+Thanks to all contributors who improve epack through code, tests, issues, and documentation.
+
+The documentation layout of this repository is inspired by the open-source project
+[bytedance/sonic](https://github.com/bytedance/sonic). epack's implementation and
+wire format are independent of sonic.
