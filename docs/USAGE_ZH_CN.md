@@ -134,11 +134,10 @@ for i := 0; i < 1000; i++ {
 
 ## 仓库内示例
 
-- `examples_test.go`（包内）
-- `examples/examples_test.go`（外部测试包）
+包文档只保留两个短示例（`ExampleMarshal`、`ExampleLoadTemplate`）。更多用法见本文；可选补充在 `examples/`。
 
 ```bash
-go test -run Example ./...
+go test -run Example .
 ```
 
 ## 相关文档

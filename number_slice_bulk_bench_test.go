@@ -8,7 +8,7 @@ import (
 func encodeNumSliceLoop(b *ubuffer, v reflect.Value) {
 	n := v.Len()
 	ek := v.Type().Elem().Kind()
-	b.buffer = append(b.buffer, SIMPLE_NUMBER, byte(ek))
+	b.buffer = append(b.buffer, simpleNumber, byte(ek))
 	for i := 0; i < n; i++ {
 		appendNumberPayloadLE(b, v.Index(i))
 	}
@@ -17,7 +17,7 @@ func encodeNumSliceLoop(b *ubuffer, v reflect.Value) {
 func encodeNumSliceBulk(b *ubuffer, v reflect.Value) {
 	n := v.Len()
 	ek := v.Type().Elem().Kind()
-	b.buffer = append(b.buffer, SIMPLE_NUMBER, byte(ek))
+	b.buffer = append(b.buffer, simpleNumber, byte(ek))
 	if canBulkNumberCopy(ek) {
 		if raw, ok := numberSliceBytes(v); ok {
 			b.buffer = append(b.buffer, raw...)
@@ -29,7 +29,7 @@ func encodeNumSliceBulk(b *ubuffer, v reflect.Value) {
 	}
 }
 
-// ---- decode：从 SIMPLE_NUMBER 头之后解析 ----
+// ---- decode：从 simpleNumber 头之后解析 ----
 
 func decodeNumSliceLoop(buf []byte, n int, ek reflect.Kind) (reflect.Value, error) {
 	b := deBuffer(buf)

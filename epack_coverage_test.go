@@ -113,7 +113,7 @@ func TestWriteNumberLEShortBuffer(t *testing.T) {
 }
 
 func TestGetTypeUnsupported(t *testing.T) {
-	if _, err := conf.getType(reflect.Kind(TYPE_ENUM + 1)); err == nil {
+	if _, err := conf.getType(reflect.Kind(_type_enum + 1)); err == nil {
 		t.Fatal("getType 超范围应报错")
 	}
 }
@@ -347,7 +347,7 @@ func TestCacheMarshalSkipsNilUnits(t *testing.T) {
 		A int32  `epack:"1"`
 		B string `epack:"2"`
 	}
-	units := []*Unit{nil, {
+	units := []*unit{nil, {
 		seq:     1,
 		encoder: stringEncoder,
 		decoder: stringDecoder,
@@ -401,8 +401,8 @@ func TestMarshalPtrStructUsesCache(t *testing.T) {
 }
 
 func TestDecodeValueUnsupportedKind(t *testing.T) {
-	// 构造非法 kind 头：kind = TYPE_ENUM+1，走 getType 失败
-	kind := uint64(TYPE_ENUM + 1)
+	// 构造非法 kind 头：kind = type_ENUM+1，走 getType 失败
+	kind := uint64(_type_enum + 1)
 	h := new2bHead(kind, 1)
 	if _, err := _decodeValue(nil, deBuffer(h)); err == nil {
 		t.Fatal("_decodeValue unsupported kind want error")
@@ -685,9 +685,9 @@ func TestLoadTemplatePointerAndSkipCached(t *testing.T) {
 
 func TestCacheUnmarshalCanSetSkip(t *testing.T) {
 	// 同包内字段通常 CanSet；构造 seq 越界会 panic，改为 decoder 错误路径
-	units := []*Unit{{
+	units := []*unit{{
 		seq: 0,
-		decoder: func(u []*Unit, b *ubuffer, v reflect.Value) error {
+		decoder: func(u []*unit, b *ubuffer, v reflect.Value) error {
 			return fmt.Errorf("boom")
 		},
 		encoder: stringEncoder,

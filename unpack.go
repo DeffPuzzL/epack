@@ -21,7 +21,7 @@ func nmlUnmarshal(b *ubuffer, val reflect.Value) error {
 	return nil
 }
 
-func cacheUnmarshal(u []*Unit, b *ubuffer, val reflect.Value) error {
+func cacheUnmarshal(u []*unit, b *ubuffer, val reflect.Value) error {
 	var err error
 	for i := 0; i < len(u) && b.remain > 0; i++ {
 		if u[i] == nil {
@@ -48,7 +48,7 @@ func cacheUnmarshal(u []*Unit, b *ubuffer, val reflect.Value) error {
 	return nil
 }
 
-func _unmarshal(u []*Unit, b *ubuffer, val reflect.Value) error {
+func _unmarshal(u []*unit, b *ubuffer, val reflect.Value) error {
 	if val.Kind() == reflect.Ptr {
 		if val.IsNil() {
 			return errPointerNil
@@ -66,7 +66,7 @@ func _unmarshal(u []*Unit, b *ubuffer, val reflect.Value) error {
 
 func newUnmarshal(b *ubuffer, val reflect.Value) error {
 	var err error
-	e := new(EPack)
+	e := new(ePack)
 	e.units, err = newEncoder(0, val.Type(), val)
 	if err != nil {
 		return err
@@ -112,7 +112,7 @@ func unmarshal(b *ubuffer, val reflect.Value) error {
 	if !exist {
 		err = newUnmarshal(b, val)
 	} else {
-		err = _unmarshal(v.(*EPack).units, b, val)
+		err = _unmarshal(v.(*ePack).units, b, val)
 	}
 
 	if err != nil {

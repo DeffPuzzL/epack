@@ -87,31 +87,29 @@ func Test_sliceNumber_ErrorPaths(t *testing.T) {
 	var got []int32
 
 	// header 不足
-	if err := _sliceNumber(deBuffer([]byte{SIMPLE_NUMBER}), reflect.ValueOf(&got).Elem(), 1); !errors.Is(err, errShortNumSliceHdr) {
+	if err := _sliceNumber(deBuffer([]byte{simpleNumber}), reflect.ValueOf(&got).Elem(), 1); !errors.Is(err, errShortNumSliceHdr) {
 		t.Fatalf("short hdr: %v", err)
 	}
 
 	// 元素 kind 无类型（Chan）
-	if err := _sliceNumber(deBuffer([]byte{SIMPLE_NUMBER, byte(reflect.Chan)}), reflect.ValueOf(&got).Elem(), 1); !errors.Is(err, errBadNumSliceElem) {
+	if err := _sliceNumber(deBuffer([]byte{simpleNumber, byte(reflect.Chan)}), reflect.ValueOf(&got).Elem(), 1); !errors.Is(err, errBadNumSliceElem) {
 		t.Fatalf("nil elem type: %v", err)
 	}
 
-	// body 不足
-	if err := _sliceNumber(deBuffer([]byte{SIMPLE_NUMBER, byte(reflect.Int32), 0, 0}), reflect.ValueOf(&got).Elem(), 2); !errors.Is(err, errShortNumSlice) {
+	if err := _sliceNumber(deBuffer([]byte{simpleNumber, byte(reflect.Int32), 0, 0}), reflect.ValueOf(&got).Elem(), 2); !errors.Is(err, errShortNumSlice) {
 		t.Fatalf("short body: %v", err)
 	}
 }
 
 func Test_decodeValue_UnsupportedKind(t *testing.T) {
-	// kind=Chan 且 size>0 → typ==nil
 	h := encodeHead(uint64(reflect.Chan), 1)
 	if _, err := _decodeValue(nil, deBuffer(h)); !errors.Is(err, errUnsupportedType) {
 		t.Fatalf("chan: %v", err)
 	}
-	// kind>=TYPE_ENUM：wire 上 2 字节头高位会像 8 字节头；直接注入已读 head
+
 	b := deBuffer([]byte{0})
 	b.read = true
-	b.kind = reflect.Kind(TYPE_ENUM + 1)
+	b.kind = reflect.Kind(_type_enum + 1)
 	b.size = 1
 	if _, err := _decodeValue(nil, b); !errors.Is(err, errUnsupportedType) {
 		t.Fatalf("oob kind: %v", err)
@@ -126,7 +124,7 @@ func TestInterfaceDecoder_UnsupportedKind(t *testing.T) {
 	}
 	b := deBuffer([]byte{0})
 	b.read = true
-	b.kind = reflect.Kind(TYPE_ENUM + 2)
+	b.kind = reflect.Kind(_type_enum + 2)
 	b.size = 1
 	if err := interfaceDecoder(nil, b, reflect.ValueOf(&any).Elem()); !errors.Is(err, errUnsupportedType) {
 		t.Fatalf("oob: %v", err)

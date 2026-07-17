@@ -202,7 +202,7 @@ func TestConcurrent_MixedTopLevelTypes(t *testing.T) {
 }
 
 func TestConcurrent_LoadTemplateRace(t *testing.T) {
-	// LoadTemplate 先 Store 空 EPack 再填 units；并发 Marshal 可能读到 units==nil。
+	// LoadTemplate 先 Store 空 ePack 再填 units；并发 Marshal 可能读到 units==nil。
 	type ltRace struct {
 		A int32  `epack:"1"`
 		B string `epack:"2"`

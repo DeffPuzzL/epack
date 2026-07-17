@@ -6,15 +6,15 @@ import (
 	"strings"
 )
 
-func (e *EPack) String() string {
+func (e *ePack) String() string {
 	return e.unitString(0, e.units)
 }
 
-func (u *Unit) String() string {
+func (u *unit) String() string {
 	return fmt.Sprintf("U{idx:%v, kind:%v, name:%v, cld:%v}", u.seq, u.kind, u.name, len(u.child))
 }
 
-func (e *EPack) unitString(indent int, units []*Unit) string {
+func (e *ePack) unitString(indent int, units []*unit) string {
 	if len(units) == 0 {
 		return ""
 	}

@@ -105,7 +105,7 @@ value = (s << 8) | (0x80 | (t & 0x1F))
 
 开头：
 
-- `0xFF` 为 `SIMPLE_NUMBER` 标记
+- `0xFF` 为数字切片紧凑编码标记
 - `elem_kind` 一字节（`reflect.Kind`）
 - `payload` 为 `len` 个紧凑 LE 元素载荷（小端主机上可能整段拷贝）
 

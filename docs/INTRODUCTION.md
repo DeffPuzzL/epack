@@ -16,8 +16,8 @@ epack is **not** a JSON library and is **not** wire-compatible with MessagePack,
 ## Encode / decode path
 
 1. `Marshal` / `Unmarshal` accept Go values (`interface{}`).
-2. For structs, epack builds (or loads) a list of `Unit`s describing each tagged exported field and its encoder/decoder.
-3. Units are stored in a process-wide `sync.Map` keyed by type string.
+2. For structs, epack builds (or loads) a list of field units describing each tagged exported field and its encoder/decoder.
+3. Those plans are stored in a process-wide `sync.Map` keyed by type string.
 4. Encoding writes type heads + payloads into a pooled buffer, then copies out the result bytes.
 5. Decoding consumes the buffer and requires the entire input to be consumed for top-level values (`isOver`).
 

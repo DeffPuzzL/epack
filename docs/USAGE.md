@@ -134,13 +134,10 @@ for i := 0; i < 1000; i++ {
 
 ## Examples in-repo
 
-Runnable examples:
-
-- `examples_test.go` (package `epack`)
-- `examples/examples_test.go` (external test package)
+Package docs keep two short examples (`ExampleMarshal`, `ExampleLoadTemplate`). More patterns are in this guide; optional extras live under `examples/`.
 
 ```bash
-go test -run Example ./...
+go test -run Example .
 ```
 
 ## Related docs

@@ -5,7 +5,7 @@
 // - 嵌套 map 值为结构体（触发 nmlMarshal/nmlUnmarshal/newUnmarshal）
 // - 大 payload (size >= 1024 走 8 字节头)
 // - 指针/接口的 nil 分支
-// - IntsToBytes / BytesToInts 互转与异常
+// - intsToBytes / bytesToInts 互转与异常
 // - decodeHead 截断错误
 // - debug 字符串输出
 
@@ -434,32 +434,32 @@ func TestEmptySliceOfStruct(t *testing.T) {
 	}
 }
 
-// ---------- IntsToBytes / BytesToInts ----------
+// ---------- intsToBytes / bytesToInts ----------
 
 func TestIntsBytesRoundTrip(t *testing.T) {
 	// 非空切片：能互相还原。
 	src := []int{1, 2, 3, -1, 1 << 30}
-	b := IntsToBytes(src)
+	b := intsToBytes(src)
 	if len(b) == 0 {
-		t.Fatal("IntsToBytes 返回空")
+		t.Fatal("intsToBytes 返回空")
 	}
 	expectedLen := len(src) * int(unsafe.Sizeof(int(0)))
 	if len(b) != expectedLen {
-		t.Fatalf("IntsToBytes 字节长度应为 %d，实际 %d", expectedLen, len(b))
+		t.Fatalf("intsToBytes 字节长度应为 %d，实际 %d", expectedLen, len(b))
 	}
 
-	got := BytesToInts(b)
+	got := bytesToInts(b)
 	if !reflect.DeepEqual(src, got) {
 		t.Fatalf("Ints/Bytes 转换不一致: %v vs %v", src, got)
 	}
 }
 
 func TestIntsBytesEmpty(t *testing.T) {
-	if b := IntsToBytes(nil); b != nil {
-		t.Fatalf("IntsToBytes(nil) 应返回 nil，实际 %v", b)
+	if b := intsToBytes(nil); b != nil {
+		t.Fatalf("intsToBytes(nil) 应返回 nil，实际 %v", b)
 	}
-	if s := BytesToInts(nil); s != nil {
-		t.Fatalf("BytesToInts(nil) 应返回 nil，实际 %v", s)
+	if s := bytesToInts(nil); s != nil {
+		t.Fatalf("bytesToInts(nil) 应返回 nil，实际 %v", s)
 	}
 }
 
@@ -468,10 +468,10 @@ func TestBytesToIntsPanicOnMisaligned(t *testing.T) {
 	// 构造一个显然长度不是 intSize 整倍数的切片。
 	defer func() {
 		if r := recover(); r == nil {
-			t.Fatal("BytesToInts 对非对齐字节应 panic")
+			t.Fatal("bytesToInts 对非对齐字节应 panic")
 		}
 	}()
-	BytesToInts(make([]byte, intSize+1))
+	bytesToInts(make([]byte, intSize+1))
 }
 
 // ---------- decodeHead 的截断错误 ----------
@@ -529,7 +529,7 @@ func TestEnBufferReleaseReuses(t *testing.T) {
 	b2.release()
 }
 
-// ---------- debug.String / Unit.String ----------
+// ---------- debug.String / unit.String ----------
 
 type moreDebugStruct struct {
 	A int32    `epack:"1"`
@@ -545,10 +545,10 @@ func TestDebugStringOutput(t *testing.T) {
 	if !ok {
 		t.Fatal("LoadTemplate 未落缓存")
 	}
-	e := v.(*EPack)
+	e := v.(*ePack)
 	s := e.String()
 	if !strings.Contains(s, "name:A") || !strings.Contains(s, "name:B") {
-		t.Fatalf("EPack.String 输出不含字段名，得到: %q", s)
+		t.Fatalf("ePack.String 输出不含字段名，得到: %q", s)
 	}
 
 	// 第一个 unit 的 String 方法应该含有 idx/kind/name 标记。
@@ -558,15 +558,15 @@ func TestDebugStringOutput(t *testing.T) {
 		}
 		us := u.String()
 		if !strings.Contains(us, "idx:") || !strings.Contains(us, "name:") {
-			t.Fatalf("Unit.String 输出异常: %q", us)
+			t.Fatalf("unit.String 输出异常: %q", us)
 		}
 		break
 	}
 
-	// 空的 EPack.unitString 应该返回空串（不 panic）。
-	empty := new(EPack)
+	// 空的 ePack.unitString 应该返回空串（不 panic）。
+	empty := new(ePack)
 	if got := empty.String(); got != "" {
-		t.Fatalf("空 EPack.String 应返回空串，实际 %q", got)
+		t.Fatalf("空 ePack.String 应返回空串，实际 %q", got)
 	}
 }
 

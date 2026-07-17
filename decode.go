@@ -55,7 +55,7 @@ func (b *ubuffer) decodeHead() error {
 	return nil
 }
 
-func _arrayInterface(u []*Unit, b *ubuffer) (reflect.Value, error) {
+func _arrayInterface(u []*unit, b *ubuffer) (reflect.Value, error) {
 	if err := b.decodeHead(); err != nil {
 		return reflect.Value{}, err
 	}
@@ -81,7 +81,7 @@ func _arrayInterface(u []*Unit, b *ubuffer) (reflect.Value, error) {
 	return ns, nil
 }
 
-func emptyStruct(u []*Unit, b *ubuffer, t reflect.Value) error {
+func emptyStruct(u []*unit, b *ubuffer, t reflect.Value) error {
 	// fmt.Println("emptyStruct", t.Type().String(), t.Elem(), t.Elem().Kind())
 
 	st := reflect.TypeOf([]interface{}{})
@@ -94,7 +94,7 @@ func emptyStruct(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return nil
 }
 
-func stringDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func stringDecoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	// print("stringDecoder")
 	if err := b.decodeHead(); err != nil {
 		return err
@@ -118,7 +118,7 @@ func stringDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 }
 
 // timeDecoder 专门处理 time.Time 类型
-func timeDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func timeDecoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	if err := b.decodeHead(); err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func timeDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return nil
 }
 
-func numberDecoder(_ []*Unit, b *ubuffer, t reflect.Value) error {
+func numberDecoder(_ []*unit, b *ubuffer, t reflect.Value) error {
 	if err := b.decodeHead(); err != nil {
 		return err
 	}
@@ -195,7 +195,7 @@ func _sliceNumber(b *ubuffer, t reflect.Value, n int) error {
 	return nil
 }
 
-// decodeNumberSlice 解码 SIMPLE_NUMBER 数字切片。
+// decodeNumberSlice 解码 simpleNumber 数字切片。
 // 目标元素为 interface{} 时先解到具体切片再装箱，避免 Set 具体类型 panic。
 func decodeNumberSlice(b *ubuffer, t reflect.Value, n int) error {
 	if t.Type().Elem().Kind() != reflect.Interface {
@@ -233,7 +233,7 @@ func _sliceNumberToInterface(b *ubuffer, t reflect.Value, n int) error {
 	return nil
 }
 
-func sliceDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func sliceDecoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	if err := b.decodeHead(); err != nil {
 		return err
 	}
@@ -243,7 +243,7 @@ func sliceDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 		return nil
 	}
 
-	if b.remain > 0 && b.buffer[b.pos] == SIMPLE_NUMBER {
+	if b.remain > 0 && b.buffer[b.pos] == simpleNumber {
 		return decodeNumberSlice(b, t, int(b.size))
 	}
 
@@ -261,7 +261,7 @@ func sliceDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return nil
 }
 
-func arrayDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func arrayDecoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	if err := b.decodeHead(); err != nil {
 		return err
 	}
@@ -281,7 +281,7 @@ func arrayDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return nil
 }
 
-func mapDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func mapDecoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	if err := b.decodeHead(); err != nil {
 		return err
 	}
@@ -317,7 +317,7 @@ func mapDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return nil
 }
 
-func _decodeValue(u []*Unit, b *ubuffer) (reflect.Value, error) {
+func _decodeValue(u []*unit, b *ubuffer) (reflect.Value, error) {
 	if err := b.readHead(); err != nil {
 		return reflect.Value{}, err
 	}
@@ -354,7 +354,7 @@ func _decodeValue(u []*Unit, b *ubuffer) (reflect.Value, error) {
 	return aVal, nil
 }
 
-func pointerDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func pointerDecoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	if err := b.readHead(); err != nil {
 		return err
 	}
@@ -377,7 +377,7 @@ func pointerDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return nil
 }
 
-func structDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func structDecoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	if err := b.decodeHead(); err != nil {
 		return err
 	}
@@ -385,7 +385,7 @@ func structDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return _unmarshal(u, b, t)
 }
 
-func interfaceDecoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func interfaceDecoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	if err := b.readHead(); err != nil {
 		return err
 	}

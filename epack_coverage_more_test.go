@@ -23,7 +23,7 @@ func TestUnitStringWithChildren(t *testing.T) {
 	if !ok {
 		t.Fatal("missing cache")
 	}
-	s := v.(*EPack).String()
+	s := v.(*ePack).String()
 	if !strings.Contains(s, "name:C") || !strings.Contains(s, "name:X") {
 		t.Fatalf("unitString children = %q", s)
 	}
@@ -129,7 +129,7 @@ func TestInterfaceDecoderArrayPath(t *testing.T) {
 }
 
 func TestInterfaceDecoderGetTypeError(t *testing.T) {
-	h := new2bHead(uint64(TYPE_ENUM+2), 1)
+	h := new2bHead(uint64(_type_enum+2), 1)
 	var any interface{}
 	v := reflect.ValueOf(&any).Elem()
 	// force readHead path with pre-set kind via buffer
@@ -263,9 +263,9 @@ func TestNumberDecoderUnaddressableSet(t *testing.T) {
 }
 
 func TestCacheMarshalEncoderError(t *testing.T) {
-	units := []*Unit{{
+	units := []*unit{{
 		seq: 0,
-		encoder: func(u []*Unit, b *ubuffer, v reflect.Value) error {
+		encoder: func(u []*unit, b *ubuffer, v reflect.Value) error {
 			return errUnsupportedType // 任意错误
 		},
 		decoder: stringDecoder,
@@ -301,7 +301,7 @@ func TestUnmarshalInterfaceNonNil(t *testing.T) {
 }
 
 func Test_sliceNumberGetTypeError(t *testing.T) {
-	b := deBuffer([]byte{SIMPLE_NUMBER, byte(TYPE_ENUM + 3), 0, 0})
+	b := deBuffer([]byte{simpleNumber, byte(_type_enum + 3), 0, 0})
 	var got []int32
 	if err := _sliceNumber(b, reflect.ValueOf(&got).Elem(), 1); err == nil {
 		t.Fatal("_sliceNumber bad kind want error")
@@ -376,7 +376,7 @@ func TestMarshalNonStructError(t *testing.T) {
 
 func TestInjectEncoderFailuresForCoverage(t *testing.T) {
 	old := conf.eFunc[reflect.String]
-	conf.eFunc[reflect.String] = func(u []*Unit, b *ubuffer, v reflect.Value) error {
+	conf.eFunc[reflect.String] = func(u []*unit, b *ubuffer, v reflect.Value) error {
 		return fmt.Errorf("injected encode fail")
 	}
 	defer func() { conf.eFunc[reflect.String] = old }()
@@ -416,7 +416,7 @@ func TestInjectDecoderFailuresForCoverage(t *testing.T) {
 	}
 
 	old := conf.dFunc[reflect.String]
-	conf.dFunc[reflect.String] = func(u []*Unit, b *ubuffer, v reflect.Value) error {
+	conf.dFunc[reflect.String] = func(u []*unit, b *ubuffer, v reflect.Value) error {
 		return fmt.Errorf("injected decode fail")
 	}
 	defer func() { conf.dFunc[reflect.String] = old }()
@@ -440,7 +440,7 @@ func TestMarshalStructEncoderError(t *testing.T) {
 		A string `epack:"1"`
 	}
 	old := conf.eFunc[reflect.String]
-	conf.eFunc[reflect.String] = func(u []*Unit, b *ubuffer, v reflect.Value) error {
+	conf.eFunc[reflect.String] = func(u []*unit, b *ubuffer, v reflect.Value) error {
 		return fmt.Errorf("fail")
 	}
 	defer func() { conf.eFunc[reflect.String] = old }()
@@ -484,7 +484,7 @@ func Test_decodeValueUnsupportedDecoder(t *testing.T) {
 func TestUnitStringSkipsNilSlots(t *testing.T) {
 	// epack tag 稀疏（如 "1","3"）且大于 NumField 时 newEncoder 会越界 panic（已知缺陷）。
 	// 这里手动构造带 nil 空洞的 units，覆盖 unitString 的 continue 分支。
-	e := &EPack{units: []*Unit{
+	e := &ePack{units: []*unit{
 		{seq: 0, name: "A", kind: reflect.Int32},
 		nil,
 		{seq: 2, name: "B", kind: reflect.String},
@@ -553,7 +553,7 @@ func TestNumberDecoderNonSettable(t *testing.T) {
 
 func TestMapEncoderValueFail(t *testing.T) {
 	old := conf.eFunc[reflect.Int]
-	conf.eFunc[reflect.Int] = func(u []*Unit, b *ubuffer, v reflect.Value) error {
+	conf.eFunc[reflect.Int] = func(u []*unit, b *ubuffer, v reflect.Value) error {
 		return fmt.Errorf("val fail")
 	}
 	defer func() { conf.eFunc[reflect.Int] = old }()
@@ -571,14 +571,14 @@ func TestInterfaceDecoderArrayAndTypeErrors(t *testing.T) {
 	}
 
 	// getType 失败
-	h2 := new2bHead(uint64(TYPE_ENUM+5), 1)
+	h2 := new2bHead(uint64(_type_enum+5), 1)
 	if err := interfaceDecoder(nil, deBuffer(h2), reflect.ValueOf(&any).Elem()); err == nil {
 		t.Fatal("getType fail want error")
 	}
 
 	// decoder 失败：string 头截断
 	old := conf.dFunc[reflect.String]
-	conf.dFunc[reflect.String] = func(u []*Unit, b *ubuffer, v reflect.Value) error {
+	conf.dFunc[reflect.String] = func(u []*unit, b *ubuffer, v reflect.Value) error {
 		return fmt.Errorf("dec fail")
 	}
 	defer func() { conf.dFunc[reflect.String] = old }()
@@ -589,7 +589,7 @@ func TestInterfaceDecoderArrayAndTypeErrors(t *testing.T) {
 }
 
 func Test_decodeValueGetTypeError(t *testing.T) {
-	h := new2bHead(uint64(TYPE_ENUM+9), 1)
+	h := new2bHead(uint64(_type_enum+9), 1)
 	if _, err := _decodeValue(nil, deBuffer(h)); err == nil {
 		t.Fatal("getType want error")
 	}

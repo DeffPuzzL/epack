@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	TYPE_ENUM   = 32
-	SIZE_MALLOC = 8192 // 8K
+	_type_enum     = 32
+	_buffer_malloc = 8192 // 8K
 )
 
-const SIMPLE_NUMBER byte = 0xFF
+const simpleNumber byte = 0xFF
 
-type Config struct {
+type config struct {
 	malloc int
 	cache  sync.Map
 	cTH    [][]byte
@@ -50,21 +50,20 @@ var (
 )
 
 var (
-	conf  *Config
+	conf  *config
 	gPool *sync.Pool
 )
 
-type coderFunc func(u []*Unit, b *ubuffer, v reflect.Value) error
+type coderFunc func(u []*unit, b *ubuffer, v reflect.Value) error
 
 func init() {
-	// 线格式固定小端，不再探测/配置本机端序。
-	conf = &Config{
-		malloc: SIZE_MALLOC,
+	conf = &config{
+		malloc: _buffer_malloc,
 		cache:  sync.Map{},
-		rType:  make([]reflect.Type, TYPE_ENUM),
-		cTH:    make([][]byte, TYPE_ENUM),
-		eFunc:  make([]coderFunc, TYPE_ENUM),
-		dFunc:  make([]coderFunc, TYPE_ENUM),
+		rType:  make([]reflect.Type, _type_enum),
+		cTH:    make([][]byte, _type_enum),
+		eFunc:  make([]coderFunc, _type_enum),
+		dFunc:  make([]coderFunc, _type_enum),
 	}
 
 	gPool = &sync.Pool{
@@ -78,8 +77,16 @@ func init() {
 	conf.initialize()
 }
 
-func (c *Config) initialize() {
-	for i := reflect.Invalid; i < TYPE_ENUM; i++ {
+func SetBufferMalloc(size int) {
+	if size <= 1024 {
+		return
+	}
+
+	conf.malloc = size
+}
+
+func (c *config) initialize() {
+	for i := reflect.Invalid; i < _type_enum; i++ {
 		switch i {
 		case reflect.String:
 			conf.eFunc[i] = stringEncoder
@@ -190,8 +197,8 @@ func (c *Config) initialize() {
 	}
 }
 
-func (c *Config) getType(ek reflect.Kind) (reflect.Type, error) {
-	if ek >= TYPE_ENUM {
+func (c *config) getType(ek reflect.Kind) (reflect.Type, error) {
+	if ek >= _type_enum {
 		return nil, errUnsupportedType
 	}
 
@@ -216,18 +223,18 @@ func cacheTH(t reflect.Kind) []byte {
 	return conf.cTH[t]
 }
 
-type Unit struct {
+type unit struct {
 	seq     int
 	level   int
 	kind    reflect.Kind
 	name    string
 	encoder coderFunc
 	decoder coderFunc
-	child   []*Unit
+	child   []*unit
 }
 
-type EPack struct {
-	units []*Unit
+type ePack struct {
+	units []*unit
 }
 
 type ubuffer struct {
@@ -307,7 +314,7 @@ func (b *ubuffer) isOver() error {
 	return errBufferNotFinished
 }
 
-func IntsToBytes(ints []int) []byte {
+func intsToBytes(ints []int) []byte {
 	if len(ints) == 0 {
 		return nil
 	}
@@ -328,7 +335,7 @@ func IntsToBytes(ints []int) []byte {
 	}))
 }
 
-func BytesToInts(bytes []byte) []int {
+func bytesToInts(bytes []byte) []int {
 	if len(bytes) == 0 {
 		return nil
 	}

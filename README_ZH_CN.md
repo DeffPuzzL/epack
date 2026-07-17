@@ -28,23 +28,25 @@ func Unmarshal(buffer []byte, obj interface{}) error
 func LoadTemplate(obj ...interface{}) error
 ```
 
-详见源码与 [docs/USAGE_ZH_CN.md](docs/USAGE_ZH_CN.md)。
+可选辅助：`SetBufferMalloc`（缓冲池大小）。
+
+内部类型（`config`、`unit` 等）与辅助函数为**未导出**，不属于公开 API；业务代码只需使用上述函数。
+
+详见 [docs/USAGE_ZH_CN.md](docs/USAGE_ZH_CN.md)。
 
 ## 性能测试
 
-同一复杂 payload（`BenchPayload`）下，epack 与 [sonic](https://github.com/bytedance/sonic)、`encoding/json` 对比：
+同一复杂 payload（`BenchPayload`）下，epack 与 **protobuf**、**msgpack**、[sonic](https://github.com/bytedance/sonic)、`encoding/json` 对比（体积 / Marshal / Unmarshal / RoundTrip / 内存）：
 
-![epack vs sonic vs encoding/json](docs/images/image.png)
+![epack vs protobuf vs msgpack vs sonic vs JSON](docs/images/image.png)
 
-> 数据环境：`darwin/arm64`（Apple M1 Pro）。sonic 与 JSON 载荷同为 JSON 文本；epack 为二进制线格式。请以本机复测为准。
+> 环境：`darwin/arm64`（Apple M1 Pro），Go 1.26.1，`-count=3` 中位数。protobuf 为 codegen，其余为运行时绑定。详见 [docs/BENCHMARK_ZH_CN.md](docs/BENCHMARK_ZH_CN.md)。
 
-仓库内 epack vs JSON 基准：
+仓库内 epack vs JSON：
 
 ```bash
 go test -bench='Benchmark(Marshal|Unmarshal|RoundTrip)_(Epack|JSON)' -benchmem .
 ```
-
-详见 `complex_bench_test.go`。
 
 ## 原理
 
@@ -100,8 +102,7 @@ _ = epack.LoadTemplate(Person{})
 
 ### 更多示例
 
-- [docs/USAGE_ZH_CN.md](docs/USAGE_ZH_CN.md)
-- 包内示例：`examples_test.go`、`examples/`
+嵌套结构体、map、指针、`time.Time` 等见 [docs/USAGE_ZH_CN.md](docs/USAGE_ZH_CN.md)。
 
 ## 文档索引
 
@@ -110,6 +111,7 @@ _ = epack.LoadTemplate(Person{})
 | [INTRODUCTION](docs/INTRODUCTION_ZH_CN.md) | 设计与内部原理 |
 | [USAGE](docs/USAGE_ZH_CN.md) | 详细用法 |
 | [WIRE_FORMAT](docs/WIRE_FORMAT_ZH_CN.md) | 二进制线格式 |
+| [BENCHMARK](docs/BENCHMARK_ZH_CN.md) | 详细性能对比 |
 
 ## 贡献
 

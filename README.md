@@ -28,23 +28,25 @@ func Unmarshal(buffer []byte, obj interface{}) error
 func LoadTemplate(obj ...interface{}) error
 ```
 
-See package source and [docs/USAGE.md](docs/USAGE.md) for details.
+Optional helper: `SetBufferMalloc` (buffer pool size).
+
+Internal types (`config`, `unit`, …) and helpers are **unexported** and not part of the public API — call sites should only use the functions above.
+
+See [docs/USAGE.md](docs/USAGE.md) for details.
 
 ## Benchmarks
 
-On the same complex payload (`BenchPayload`), epack is compared with [sonic](https://github.com/bytedance/sonic) and `encoding/json`:
+On the same complex payload (`BenchPayload`), epack is compared with **protobuf**, **msgpack**, [sonic](https://github.com/bytedance/sonic), and `encoding/json` (size / Marshal / Unmarshal / RoundTrip / memory):
 
-![epack vs sonic vs encoding/json](docs/images/image.png)
+![epack vs protobuf vs msgpack vs sonic vs JSON](docs/images/image.png)
 
-> Numbers from `darwin/arm64` (Apple M1 Pro). sonic / JSON share the same JSON byte size; epack uses a binary wire format. Re-run on your machine for authoritative results.
+> `darwin/arm64` (Apple M1 Pro), Go 1.26.1, `-count=3` median. protobuf uses codegen; others use runtime binding. Details: [docs/BENCHMARK.md](docs/BENCHMARK.md).
 
-In-repo epack vs JSON benches:
+In-repo epack vs JSON:
 
 ```bash
 go test -bench='Benchmark(Marshal|Unmarshal|RoundTrip)_(Epack|JSON)' -benchmem .
 ```
-
-See `complex_bench_test.go`.
 
 ## How it works
 
@@ -100,8 +102,7 @@ _ = epack.LoadTemplate(Person{})
 
 ### More examples
 
-- [docs/USAGE.md](docs/USAGE.md)
-- Package examples: `examples_test.go`, `examples/`
+See [docs/USAGE.md](docs/USAGE.md) for nested structs, maps, pointers, `time.Time`, and more.
 
 ## Documentation
 
@@ -110,6 +111,7 @@ _ = epack.LoadTemplate(Person{})
 | [INTRODUCTION](docs/INTRODUCTION.md) | Design & internals |
 | [USAGE](docs/USAGE.md) | Detailed usage |
 | [WIRE_FORMAT](docs/WIRE_FORMAT.md) | Binary wire format |
+| [BENCHMARK](docs/BENCHMARK.md) | Detailed benchmarks |
 
 ## Contributing
 

@@ -103,7 +103,7 @@ When element kind is a supported number/bool kind, body starts with:
 0xFF | elem_kind | payload…
 ```
 
-- `0xFF` is the `SIMPLE_NUMBER` marker
+- `0xFF` is the numeric-slice compact marker
 - `elem_kind` is one byte (`reflect.Kind`)
 - `payload` is `len` tightly packed LE element payloads (and may be bulk-copied on LE hosts)
 

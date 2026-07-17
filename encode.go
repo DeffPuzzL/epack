@@ -25,12 +25,12 @@ func _numberSlice(t reflect.Kind) bool {
 	}
 }
 
-func numberEncoder(_ []*Unit, b *ubuffer, t reflect.Value) error {
+func numberEncoder(_ []*unit, b *ubuffer, t reflect.Value) error {
 	appendNumberHeadAndPayload(b, t)
 	return nil
 }
 
-func stringEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func stringEncoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	s := t.String()
 
 	// fmt.Println("stringEncoder", s, len(s), b.pos, encodeHead(uint64(reflect.String), uint64(len(s))))
@@ -40,13 +40,13 @@ func stringEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 }
 
 // timeEncoder encode time.Time type
-func timeEncoder(_ []*Unit, b *ubuffer, t reflect.Value) error {
+func timeEncoder(_ []*unit, b *ubuffer, t reflect.Value) error {
 	timestamp := t.Interface().(time.Time).UnixNano()
 	appendNumberHeadAndPayload(b, reflect.ValueOf(timestamp))
 	return nil
 }
 
-func interfaceEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func interfaceEncoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	if t.IsNil() {
 		b.copyBytes(cacheTH(reflect.Interface))
 		return nil
@@ -58,7 +58,7 @@ func interfaceEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return encoderFunc(e)(u, b, e)
 }
 
-func mapEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func mapEncoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	var err error
 
 	keys := t.MapKeys()
@@ -84,13 +84,13 @@ func mapEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return nil
 }
 
-func structEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func structEncoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	// fmt.Println("structEncoder", t.Type().String(), len(u), uint64(t.NumField()))
 	b.copyBytes(encodeHead(uint64(reflect.Struct), uint64(t.NumField())))
 	return marshal(u, b, t)
 }
 
-func sliceEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func sliceEncoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	if t.Kind() == reflect.Ptr && t.IsNil() {
 		b.copyBytes(cacheTH(reflect.Slice))
 		return nil
@@ -106,7 +106,7 @@ func sliceEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	ek := et.Kind()
 
 	if _numberSlice(ek) {
-		b.buffer = append(b.buffer, SIMPLE_NUMBER, byte(ek))
+		b.buffer = append(b.buffer, simpleNumber, byte(ek))
 		// 本机 LE 且定宽数字：整段 copy；否则逐元素写小端载荷
 		if canBulkNumberCopy(ek) {
 			if raw, ok := numberSliceBytes(t); ok {
@@ -131,7 +131,7 @@ func sliceEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return nil
 }
 
-func arrayEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func arrayEncoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	var err error
 	b.copyBytes(encodeHead(uint64(reflect.Array), uint64(t.Len())))
 	for i := 0; i < t.Len(); i++ {
@@ -144,7 +144,7 @@ func arrayEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
 	return nil
 }
 
-func pointerEncoder(u []*Unit, b *ubuffer, t reflect.Value) error {
+func pointerEncoder(u []*unit, b *ubuffer, t reflect.Value) error {
 	if t.IsNil() {
 		b.copyBytes(cacheTH(reflect.Pointer))
 		return nil
@@ -186,9 +186,9 @@ func asStructValue(tp reflect.Type, vl reflect.Value) reflect.Value {
 	return vl
 }
 
-func newEncoder(level int, tp reflect.Type, vl reflect.Value) ([]*Unit, error) {
+func newEncoder(level int, tp reflect.Type, vl reflect.Value) ([]*unit, error) {
 	vl = asStructValue(tp, vl)
-	units := make([]*Unit, tp.NumField())
+	units := make([]*unit, tp.NumField())
 	for i := 0; i < tp.NumField(); i++ {
 		field := tp.Field(i)
 		idx, err := strconv.Atoi(field.Tag.Get("epack"))
@@ -200,7 +200,7 @@ func newEncoder(level int, tp reflect.Type, vl reflect.Value) ([]*Unit, error) {
 			continue
 		}
 
-		u := &Unit{
+		u := &unit{
 			seq:     i,
 			level:   level,
 			name:    field.Name,
@@ -263,7 +263,7 @@ func LoadTemplate(obj ...interface{}) (err error) {
 			continue
 		}
 
-		e := new(EPack)
+		e := new(ePack)
 		if e.units, err = newEncoder(0, tp, vl); err != nil {
 			return err
 		}

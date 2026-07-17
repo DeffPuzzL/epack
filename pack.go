@@ -21,7 +21,7 @@ func nmlMarshal(b *ubuffer, val reflect.Value) error {
 	return nil
 }
 
-func cacheMarshal(u []*Unit, b *ubuffer, val reflect.Value) error {
+func cacheMarshal(u []*unit, b *ubuffer, val reflect.Value) error {
 	var err error
 	for i := 0; i < len(u); i++ {
 		if u[i] == nil {
@@ -39,7 +39,7 @@ func cacheMarshal(u []*Unit, b *ubuffer, val reflect.Value) error {
 	return nil
 }
 
-func marshal(u []*Unit, b *ubuffer, val reflect.Value) error {
+func marshal(u []*unit, b *ubuffer, val reflect.Value) error {
 	if val.Kind() == reflect.Ptr {
 		if val.IsNil() {
 			b.buffer = append(b.buffer, encodeHead(uint64(reflect.Pointer), 0)...)
@@ -58,7 +58,7 @@ func marshal(u []*Unit, b *ubuffer, val reflect.Value) error {
 
 func newMarshal(val reflect.Value, b *ubuffer) error {
 	var err error
-	e := new(EPack)
+	e := new(ePack)
 	e.units, err = newEncoder(0, val.Type(), val)
 	if err != nil {
 		return err
@@ -94,7 +94,7 @@ func Marshal(obj interface{}) ([]byte, error) {
 		if !exist {
 			err = newMarshal(val, b)
 		} else {
-			e := v.(*EPack)
+			e := v.(*ePack)
 			err = marshal(e.units, b, val)
 		}
 	}
